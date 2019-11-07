@@ -1,12 +1,18 @@
 """
-Created on Thu Nov 7 14:46:56 2019
+Created on Mon Jun 26 14:46:56 2017
 
-@author: anurags
+@author: luohao
 
 Modified by Houjing Huang, 2017-12-22.
 - This version accepts distance matrix instead of raw features.
 - The difference of `/` division between python 2 and 3 is handled.
 - numpy.float16 is replaced by numpy.float32 for numerical precision.
+"""
+
+"""
+CVPR2017 paper:Zhong Z, Zheng L, Cao D, et al. Re-ranking Person Re-identification with k-reciprocal Encoding[J]. 2017.
+url:http://openaccess.thecvf.com/content_cvpr_2017/papers/Zhong_Re-Ranking_Person_Re-Identification_CVPR_2017_paper.pdf
+Matlab version: https://github.com/zhunzhong07/person-re-ranking
 """
 
 """
