@@ -88,10 +88,10 @@ def update_A_new(A,Q,parameters):
     form of objective is alpha||Z||_1 + beta||E||_{2,1} + gamma tr(QL_AQ^{T}) + lambda ||A||_{F} + thetha ||W||_{2,1}
 """
 
-def convex_update(X,parameters,tensor_dict,device):
-    Z,Q,A,Y2,E,Y1 = tensor_dict['Z'],tensor_dict['Q'],tensor_dict['A'],tensor_dict['Y2'],tensor_dict['E'],tensor_dict['Y1']
-    mu, mu_max, rho, k = tensor_dict['mu'], 10**10, 1.5, tensor_dict['k']
-    del(tensor_dict)
+def convex_update(X,parameters):
+    Z = Q = A = Y2 = torch.zeros((X.shape[1],X.shape[1])),requires_grad=False)
+    E = Y1 = torch.zeros((X.shape[0],X.shape[1]),requires_grad=False)
+    mu, mu_max, rho, k = parameters['mu'], 10**10, 1.5, 0
     OptimizationLoss=0
     while k<=parameters['iterations']:
         #update Z
@@ -126,7 +126,6 @@ def convex_update(X,parameters,tensor_dict,device):
         print("Z Q diff:",torch.norm(Z-Q))
         k+=1
     print("otpimization loss:",OptimizationLoss/parameters['iterations'])
-    tensor_dict={'Z':Z,'Q':Q,'A':A,'E':E,'Y1':Y1,'Y2':Y2,'mu':mu,'k':k}
-    return tensor_dict
+    return A
 
 
