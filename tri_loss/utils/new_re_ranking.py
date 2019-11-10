@@ -38,13 +38,13 @@ def re_ranking(features, q_g_dist, q_q_dist, g_g_dist, k1=20, k2=6, lambda_value
     # Don't care about it.
     #append all in A_big 
     big_A=[]
-    alpha_crop_gallery=50
+    alpha_crop_gallery=51
     parameters={'alpha': 0.1,'beta':0.1,'gamma':10,'lambda':1,'epsilon':2,'eta':0,'iterations':50}
     for probe_index in range(len(q_g_dist)):
-      index_of_features=[probe_index]
-      index_of_features.extend(np.argpartition(q_g_dist[probe_index][1:],alpha_crop_gallery))
+      index_of_features=[]
+      index_of_features=np.argpartition(q_g_dist[probe_index],alpha_crop_gallery_probe)
       with torch.no_grad():
-        X=torch.transpose(features[index_of_features],0,1)
+        X=torch.transpose(features[index_of_features[:all_crop_gallery_probe]],0,1)
         parameters['eta']=torch.sum(X**2)
         A=convex_update(X,parameters)
         big_A.append(A.detach().numpy())
