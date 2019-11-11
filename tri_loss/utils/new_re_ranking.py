@@ -48,15 +48,9 @@ def re_ranking(features, q_g_dist, q_q_dist, g_g_dist, k1=20, k2=6, lambda_value
         parameters['eta']=torch.sum(X**2)
         A=convex_update(X,parameters)
         big_A.append(A.detach().numpy())
-      
-    original_dist = np.concatenate(
-      [np.concatenate([q_q_dist, q_g_dist], axis=1),
-       np.concatenate([q_g_dist.T, g_g_dist], axis=1)],
-      axis=0)
-    original_dist = np.power(original_dist, 2).astype(np.float32)
-    original_dist = np.transpose(1. * original_dist/np.max(original_dist,axis = 0))
-    V = np.zeros_like(original_dist).astype(np.float32)
-    initial_rank = np.argsort(original_dist).astype(np.int32)
+    for A in big_A:
+      V = np.zeros_like(original_dist).astype(np.float32)
+      initial_rank = np.argsort(A[:][0]).astype(np.int32)
 
     query_num = q_g_dist.shape[0]
     gallery_num = q_g_dist.shape[0] + q_g_dist.shape[1]
