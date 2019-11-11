@@ -1,15 +1,15 @@
 """
-Created on Mon Jun 26 14:46:56 2017
+Created on Mon Nov 11 14:46:56 2019
 
-@author: luohao
+@author: anurag singh
 
-Modified by Houjing Huang, 2017-12-22.
 - This version accepts distance matrix instead of raw features.
 - The difference of `/` division between python 2 and 3 is handled.
 - numpy.float16 is replaced by numpy.float32 for numerical precision.
 """
 
 """
+K-reciprocal code is inspired from 
 CVPR2017 paper:Zhong Z, Zheng L, Cao D, et al. Re-ranking Person Re-identification with k-reciprocal Encoding[J]. 2017.
 url:http://openaccess.thecvf.com/content_cvpr_2017/papers/Zhong_Re-Ranking_Person_Re-Identification_CVPR_2017_paper.pdf
 Matlab version: https://github.com/zhunzhong07/person-re-ranking
@@ -39,7 +39,7 @@ def re_ranking(features, q_g_dist, q_q_dist, g_g_dist, k1=20, k2=6, lambda_value
     #append all in A_big 
     big_A=[]
     alpha_crop_gallery=51
-    parameters={'alpha': 0.1,'beta':0.1,'gamma':10,'lambda':1,'epsilon':2,'eta':0,'iterations':50}
+    parameters={'alpha': 0.1,'beta':0.1,'gamma':10,'lambda':1,'epsilon':k1,'eta':0,'iterations':50}
     for probe_index in range(len(q_g_dist)):
       index_of_features=[]
       index_of_features=np.argpartition(q_g_dist[probe_index],alpha_crop_gallery_probe)
