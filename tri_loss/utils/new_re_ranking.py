@@ -39,7 +39,7 @@ def re_ranking(features, q_g_dist, q_q_dist, g_g_dist, k1=20, k2=6, lambda_value
     #append all in A_big 
     big_A=[]
     alpha_crop_gallery=50
-    parameters={'alpha': 0.1,'beta':0.1,'gamma':10,'lambda':1,'epsilon':k1,'eta':0,'iterations':50}
+    parameters={'alpha': 0.1,'beta':0.1,'gamma':10,'lambda':1,'epsilon':k1+1,'eta':0,'iterations':50}
     for probe_index in range(len(q_g_dist)):
         index_of_features=[]
         index_of_features=np.argpartition(q_g_dist[probe_index],alpha_crop_gallery_probe+1)
@@ -50,11 +50,11 @@ def re_ranking(features, q_g_dist, q_q_dist, g_g_dist, k1=20, k2=6, lambda_value
             big_A.append(A.detach().numpy())
     for A in big_A:
         V = np.zeros_like(A).astype(np.float32)
-        initial_rank = np.argsort(A[:][0]).astype(np.int32)
-        forward_k_neigh_index = initial_rank[:k1+1]
-        backward_k_neigh_index = np.where(A[:][forward_k_neigh_index]>0)
-        fi = np.where(backward_k_neigh_index==i)[0]
-        k_reciprocal_index = forward_k_neigh_index[fi]
+        initial_rank = np.argsort(A).astype(np.int32)
+        forward_k_neigh_index = initial_rank[:k1+1,0]
+        backward_k_neigh_index = initial_rank[:k1+1,forward_k_neigh_index]
+        f0 = np.where(backward_k_neigh_index==0)[1]
+        k_reciprocal_index = forward_k_neigh_index[f0]
         k_reciprocal_expansion_index = k_reciprocal_index
         for j in range(len(k_reciprocal_index)):
             candidate = k_reciprocal_index[j]
