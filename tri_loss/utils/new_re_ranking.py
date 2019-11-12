@@ -58,30 +58,15 @@ def re_ranking(features, q_g_dist, q_q_dist, g_g_dist, k1=20, k2=6, lambda_value
         k_reciprocal_expansion_index = k_reciprocal_index
         for j in range(len(k_reciprocal_index)):
             candidate = k_reciprocal_index[j]
-            candidate_forward_k_neigh_index = initial_rank[candidate,:int(np.around(k1/2.))+1]
-            candidate_backward_k_neigh_index = initial_rank[candidate_forward_k_neigh_index,:int(np.around(k1/2.))+1]
-            fi_candidate = np.where(candidate_backward_k_neigh_index == candidate)[0]
+            candidate_forward_k_neigh_index = initial_rank[:int(np.around(k1/2.))+1,candidate]
+            candidate_backward_k_neigh_index = initial_rank[:int(np.around(k1/2.))+1,candidate_forward_k_neigh_index]
+            fi_candidate = np.where(candidate_backward_k_neigh_index == candidate)[1]
             candidate_k_reciprocal_index = candidate_forward_k_neigh_index[fi_candidate]
             if len(np.intersect1d(candidate_k_reciprocal_index,k_reciprocal_index))> 2./3*len(candidate_k_reciprocal_index):
                 k_reciprocal_expansion_index = np.append(k_reciprocal_expansion_index,candidate_k_reciprocal_index)
                 
                 
-    for i in range(all_num):
-        # k-reciprocal neighbors
-        forward_k_neigh_index = initial_rank[i,:k1+1]
-        backward_k_neigh_index = initial_rank[forward_k_neigh_index,:k1+1]
-        fi = np.where(backward_k_neigh_index==i)[0]
-        k_reciprocal_index = forward_k_neigh_index[fi]
-        k_reciprocal_expansion_index = k_reciprocal_index
-        for j in range(len(k_reciprocal_index)):
-            candidate = k_reciprocal_index[j]
-            candidate_forward_k_neigh_index = initial_rank[candidate,:int(np.around(k1/2.))+1]
-            candidate_backward_k_neigh_index = initial_rank[candidate_forward_k_neigh_index,:int(np.around(k1/2.))+1]
-            fi_candidate = np.where(candidate_backward_k_neigh_index == candidate)[0]
-            candidate_k_reciprocal_index = candidate_forward_k_neigh_index[fi_candidate]
-            if len(np.intersect1d(candidate_k_reciprocal_index,k_reciprocal_index))> 2./3*len(candidate_k_reciprocal_index):
-                k_reciprocal_expansion_index = np.append(k_reciprocal_expansion_index,candidate_k_reciprocal_index)
-
+    
         k_reciprocal_expansion_index = np.unique(k_reciprocal_expansion_index)
         weight = np.exp(-original_dist[i,k_reciprocal_expansion_index])
         V[i,k_reciprocal_expansion_index] = 1.*weight/np.sum(weight)
