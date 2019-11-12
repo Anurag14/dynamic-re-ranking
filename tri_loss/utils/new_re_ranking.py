@@ -49,8 +49,10 @@ def re_ranking(features, q_g_dist, q_q_dist, g_g_dist, k1=20, k2=6, lambda_value
         A=convex_update(X,parameters)
         big_A.append(A.detach().numpy())
     for A in big_A:
-      V = np.zeros_like(original_dist).astype(np.float32)
+      V = np.zeros_like(A).astype(np.float32)
       initial_rank = np.argsort(A[:][0]).astype(np.int32)
+      forward_k_neigh_index = initial_rank[:epsilon]
+      backward_k_neigh_index = np.where(A[0][forward_k_neigh_index]>0)
 
     query_num = q_g_dist.shape[0]
     gallery_num = q_g_dist.shape[0] + q_g_dist.shape[1]
