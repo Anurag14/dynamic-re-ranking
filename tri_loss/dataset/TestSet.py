@@ -8,8 +8,10 @@ from collections import defaultdict
 
 from .Dataset import Dataset
 
+from ..utils.new_re_ranking import graph_re_ranking
 from ..utils.utils import measure_time
 from ..utils.re_ranking import re_ranking
+from ..utils.new_metric import new_cmc, new_mean_ap
 from ..utils.metric import cmc, mean_ap
 from ..utils.dataset_utils import parse_im_name
 from ..utils.distance import normalize
@@ -132,6 +134,7 @@ class TestSet(Dataset):
       self,
       normalize_feat=True,
       to_re_rank=True,
+      proposed_algo=True,
       pool_type='average',
       verbose=True):
 
@@ -174,6 +177,30 @@ class TestSet(Dataset):
         first_match_break=self.first_match_break,
         topk=10)
       return mAP, cmc_scores
+    
+    # A new helper function for proposed algorithm just for avoiding code duplication.
+    def new_compute_score(
+        dist_mat,
+        query_ids=ids[q_inds],
+        gallery_ids=ids[g_inds],
+        query_cams=cams[q_inds],
+        gallery_cams=cams[g_inds]):
+      # Compute mean AP
+      mAP = new_mean_ap(
+        distmat=dist_mat,
+        query_ids=query_ids, gallery_ids=gallery_ids,
+        query_cams=query_cams, gallery_cams=gallery_cams)
+      # Compute CMC scores
+      cmc_scores = new_cmc(
+        distmat=dist_mat,
+        query_ids=query_ids, gallery_ids=gallery_ids,
+        query_cams=query_cams, gallery_cams=gallery_cams,
+        separate_camera_set=self.separate_camera_set,
+        single_gallery_shot=self.single_gallery_shot,
+        first_match_break=self.first_match_break,
+        topk=10)
+      return mAP, cmc_scores
+
 
     def print_scores(mAP, cmc_scores):
       print('[mAP: {:5.2%}], [cmc1: {:5.2%}], [cmc5: {:5.2%}], [cmc10: {:5.2%}]'
@@ -226,6 +253,51 @@ class TestSet(Dataset):
 
       print('{:<30}'.format('Multi Query:'), end='')
       print_scores(mq_mAP, mq_cmc_scores)
+    if proposed_algo:
+
+      ##########################
+      # Re-ranked optimization #
+      ##########################
+      with measure_time('Re-ranking based on proposed algo...',verbose=verbose):
+        # query-query distance
+        q_q_dist = compute_dist(feat[q_inds], feat[q_inds], type='euclidean')
+        # gallery-gallery distance
+        g_g_dist = compute_dist(feat[g_inds], feat[g_inds], type='euclidean')
+        # re-ranked query-gallery distance
+        re_r_q_g_dist = new_re_ranking(q_g_dist, q_q_dist, g_g_dist)
+
+      with measure_time('Computing scores for Proposed re-ranked distance...',
+                        verbose=verbose):
+        mAP, cmc_scores = new_compute_score(re_r_q_g_dist)
+
+      print('{:<30}'.format('Re-ranked Proposed Single Query:'), end='')
+      print_scores(mAP, cmc_scores)
+
+      #########################
+      # Re-ranked Multi Query #
+      #########################
+
+      if any(mq_inds):
+        with measure_time('Multi Query, Proposed Re-ranking distance...',
+                          verbose=verbose):
+          # multi_query-multi_query distance
+          mq_mq_dist = compute_dist(mq_feat, mq_feat, type='euclidean')
+          # re-ranked multi_query-gallery distance
+          re_r_mq_g_dist = new_re_ranking(mq_g_dist, mq_mq_dist, g_g_dist)
+        with measure_time(
+            'Multi Query, Computing scores for Proposed re-ranked distance...',
+            verbose=verbose):
+          mq_mAP, mq_cmc_scores = compute_score(
+            re_r_mq_g_dist,
+            query_ids=np.array(zip(*keys)[0]),
+            gallery_ids=ids[g_inds],
+            query_cams=np.array(zip(*keys)[1]),
+            gallery_cams=cams[g_inds]
+          )
+
+        print('{:<30}'.format('Re-ranked Proposed Multi Query:'), end='')
+        print_scores(mq_mAP, mq_cmc_scores)
+
 
     if to_re_rank:
 
