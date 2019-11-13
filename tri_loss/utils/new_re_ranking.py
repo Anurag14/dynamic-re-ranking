@@ -48,6 +48,8 @@ def graph_re_ranking(features, q_g_dist, k1=20, k2=6, lambda_value=0.3):
             parameters['eta']=torch.sum(X**2)
             A=convex_update(X,parameters)
             big_A.append(A.detach().numpy())
+    
+    final_distance=[]
     for A in big_A:
         V = np.zeros_like(A).astype(np.float32)
         initial_rank = np.argsort(A).astype(np.int32)
@@ -76,5 +78,9 @@ def graph_re_ranking(features, q_g_dist, k1=20, k2=6, lambda_value=0.3):
         A[:,0] = V[:,0]*(1-lambda_value) + A[:,0]*lambda_value
         del V
         final_rank_list=np.argsort(A[:,0])
-        print(final_rank_list)
-    return final_cmc,final_map
+        distance=np.zeros_like(A[:,0],dtype=np.float32)
+        for count,rank_index in enumerate(final_rank_list):
+            distance[rank_index]=count
+        final_distance.append(distance)
+    final_distance=np.array(final_distance)
+    return final_distance
