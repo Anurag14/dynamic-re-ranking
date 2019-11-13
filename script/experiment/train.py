@@ -395,7 +395,6 @@ def main():
     mAP, cmc_scores, _, _ = val_set.eval(
       normalize_feat=cfg.normalize_feature,
       to_re_rank=False,
-      proposed_algo=False,
       verbose=False)
     print()
     return mAP, cmc_scores[0]

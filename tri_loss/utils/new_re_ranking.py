@@ -32,7 +32,7 @@ import torch
 import numpy as np
 from patch_optimization import convex_update
 
-def re_ranking(features, q_g_dist, q_q_dist, g_g_dist, k1=20, k2=6, lambda_value=0.3):
+def graph_re_ranking(features, q_g_dist, k1=20, k2=6, lambda_value=0.3):
 
     # The following naming, e.g. gallery_num, is different from outer scope.
     # Don't care about it.
@@ -64,39 +64,17 @@ def re_ranking(features, q_g_dist, q_q_dist, g_g_dist, k1=20, k2=6, lambda_value
             candidate_k_reciprocal_index = candidate_forward_k_neigh_index[fi_candidate]
             if len(np.intersect1d(candidate_k_reciprocal_index,k_reciprocal_index))> 2./3*len(candidate_k_reciprocal_index):
                 k_reciprocal_expansion_index = np.append(k_reciprocal_expansion_index,candidate_k_reciprocal_index)
-                
-                
     
         k_reciprocal_expansion_index = np.unique(k_reciprocal_expansion_index)
-        weight = np.exp(-original_dist[i,k_reciprocal_expansion_index])
-        V[i,k_reciprocal_expansion_index] = 1.*weight/np.sum(weight)
-    original_dist = original_dist[:query_num,]
-    if k2 != 1:
-        V_qe = np.zeros_like(V,dtype=np.float32)
-        for i in range(all_num):
-            V_qe[i,:] = np.mean(V[initial_rank[i,:k2],:],axis=0)
-        V = V_qe
-        del V_qe
-    del initial_rank
-    invIndex = []
-    for i in range(gallery_num):
-        invIndex.append(np.where(V[:,i] != 0)[0])
-
-    jaccard_dist = np.zeros_like(original_dist,dtype = np.float32)
-
-
-    for i in range(query_num):
-        temp_min = np.zeros(shape=[1,gallery_num],dtype=np.float32)
-        indNonZero = np.where(V[i,:] != 0)[0]
-        indImages = []
-        indImages = [invIndex[ind] for ind in indNonZero]
-        for j in range(len(indNonZero)):
-            temp_min[0,indImages[j]] = temp_min[0,indImages[j]]+ np.minimum(V[i,indNonZero[j]],V[indImages[j],indNonZero[j]])
-        jaccard_dist[i] = 1-temp_min/(2.-temp_min)
-
-    final_dist = jaccard_dist*(1-lambda_value) + original_dist*lambda_value
-    del original_dist
-    del V
-    del jaccard_dist
-    final_dist = final_dist[:query_num,query_num:]
-    return final_dist
+        weight = np.exp(-np.reciprocal(A[k_reciprocal_expansion_index,0]))
+        V[k_reciprocal_expansion_index,0] = 1.*weight/np.sum(weight)
+        if k2 != 1:
+            V_qe = np.zeros_like(V,dtype=np.float32)
+            V_qe[:,0] = np.mean(V[initial_rank[:k2,0],:],axis=0)
+            V = V_qe
+        del initial_rank
+        A[:,0] = V[:,0]*(1-lambda_value) + A[:,0]*lambda_value
+        del V
+        final_rank_list=np.argsort(A[:,0])
+        print(final_rank_list)
+    return final_cmc,final_map

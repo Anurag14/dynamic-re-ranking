@@ -149,7 +149,8 @@ class ResNet(nn.Module):
 
 def remove_fc(state_dict):
   """Remove the fc layer parameters from state_dict."""
-  for key, value in state_dict.items():
+  state_dict_copy=state_dict.copy()
+  for key, value in state_dict_copy.items():
     if key.startswith('fc.'):
       del state_dict[key]
   return state_dict

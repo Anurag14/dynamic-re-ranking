@@ -128,15 +128,17 @@ def transform(zip_file, save_dir=None):
 
 
 if __name__ == '__main__':
-  import argparse
-
-  parser = argparse.ArgumentParser(
-    description="Transform DukeMTMC-reID Dataset")
-  parser.add_argument('--zip_file', type=str,
-                      default='~/Dataset/duke/DukeMTMC-reID.zip')
-  parser.add_argument('--save_dir', type=str,
-                      default='~/Dataset/duke')
-  args = parser.parse_args()
-  zip_file = osp.abspath(osp.expanduser(args.zip_file))
-  save_dir = osp.abspath(osp.expanduser(args.save_dir))
+#  import argparse
+#
+#  parser = argparse.ArgumentParser(
+#    description="Transform DukeMTMC-reID Dataset")
+#  parser.add_argument('--zip_file', type=str,
+#                      default='~/Dataset/duke/DukeMTMC-reID.zip')
+#  parser.add_argument('--save_dir', type=str,
+#                      default='~/Dataset/duke')
+#  args = parser.parse_args()
+  zip_file="C:\Programs_vc\DynamicGraph\data\images"
+  save_dir="C:\Programs_vc\DynamicGraph\data\part"
+#  zip_file = osp.abspath(osp.expanduser(args.zip_file))
+#  save_dir = osp.abspath(osp.expanduser(args.save_dir))
   transform(zip_file, save_dir)
