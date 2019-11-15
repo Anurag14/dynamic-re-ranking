@@ -24,8 +24,8 @@ def create_dataset(
   ########################################
 
   if name == 'market1501':
-    im_dir = ospeu('/home/anurags/Desktop/personreid/person-reid-triplet-loss-baseline/tri_loss/dataset/images')
-    partition_file = ospeu('/home/anurags/Desktop/personreid/person-reid-triplet-loss-baseline/tri_loss/dataset/partitions.pkl')
+    im_dir = ospeu('~/Dataset/market1501/images')
+    partition_file = ospeu('~/Dataset/market1501/partitions.pkl')
 
   elif name == 'cuhk03':
     im_type = ['detected', 'labeled'][0]

@@ -89,7 +89,7 @@ def update_A_new(A,Q,parameters):
 """
 
 def convex_update(X,parameters):
-    Z = Q = A = Y2 = torch.zeros((X.shape[1],X.shape[1])),requires_grad=False)
+    Z = Q = A = Y2 = torch.zeros((X.shape[1],X.shape[1]),requires_grad=False)
     E = Y1 = torch.zeros((X.shape[0],X.shape[1]),requires_grad=False)
     mu, mu_max, rho, k = parameters['mu'], 10**10, 1.5, 0
     OptimizationLoss=0

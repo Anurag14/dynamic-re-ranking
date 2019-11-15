@@ -30,7 +30,7 @@ Returns:
 
 import torch
 import numpy as np
-from patch_optimization import convex_update
+from ..utils.patch_optimization import convex_update
 
 def graph_re_ranking(features, q_g_dist, k1=20, k2=6, lambda_value=0.3):
 
@@ -39,12 +39,12 @@ def graph_re_ranking(features, q_g_dist, k1=20, k2=6, lambda_value=0.3):
     #append all in A_big 
     big_A=[]
     alpha_crop_gallery=50
-    parameters={'alpha': 0.1,'beta':0.1,'gamma':10,'lambda':1,'epsilon':k1+1,'eta':0,'iterations':50}
+    parameters={'alpha': 0.1,'beta':0.1,'gamma':10,'lambda':1,'epsilon':k1+1,'eta':0,'iterations':50,'mu':0.1}
     for probe_index in range(len(q_g_dist)):
         index_of_features=[]
-        index_of_features=np.argpartition(q_g_dist[probe_index],alpha_crop_gallery_probe+1)
+        index_of_features=np.argpartition(q_g_dist[probe_index],alpha_crop_gallery+1)
         with torch.no_grad():
-            X=torch.transpose(features[index_of_features[:all_crop_gallery_probe+1]],0,1)
+            X=torch.transpose(torch.from_numpy(features[index_of_features[:alpha_crop_gallery+1]]),0,1)
             parameters['eta']=torch.sum(X**2)
             A=convex_update(X,parameters)
             big_A.append(A.detach().numpy())
